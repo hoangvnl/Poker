@@ -141,15 +141,6 @@ const Poker = ({ members }) => {
     handleOpenDialogInputMoney();
   };
 
-  const checkCoin = () => {
-    let result = 0;
-    memberList.forEach((m) => {
-      result += m.money;
-    });
-
-    return result;
-  };
-
   return (
     <div className="root">
       <Button onClick={handleOpenDialogHistory}>
@@ -195,7 +186,7 @@ const Poker = ({ members }) => {
         ))}
 
       <p>Tổng số xèng đang ở trên bàn: {coin}</p>
-      <p>Đang lệch: {coin + checkCoin()}</p>
+
       <Dialog
         open={openDialogMemberList && fromMember && !openDialogInputMoney}
         onClose={handleCloseDialogMemberList}
@@ -282,7 +273,7 @@ const Poker = ({ members }) => {
                     primary={
                       <React.Fragment>
                         <p>
-                          {h.from.name} {actionType === 1 ? "trả" : "mượn"}{" "}
+                          {h.from.name} {h.actionType === 1 ? "trả" : "mượn"}{" "}
                           {h.to.id === 0 ? "ngân hàng" : h.to.name}: {h.money}
                         </p>
                       </React.Fragment>
