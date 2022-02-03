@@ -1,0 +1,34 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  width: 80%;
+}
+
+.member {
+  display: flex;
+  justify-content: space-between;
+}
+
+.member-info {
+  display: flex;
+  width: 100%;
+}
+.member-name {
+  flex: 2;
+  text-align: left;
+  margin: auto;
+}
+
+.member-money {
+  flex: 3;
+  text-align: left;
+  margin: auto;
+}
+
+.member-actions {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 110px;
+}
