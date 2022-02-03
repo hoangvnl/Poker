@@ -12,6 +12,7 @@ import ListItemText from "@mui/material/ListItemText";
 import Divider from "@mui/material/Divider";
 import DialogTitle from "@mui/material/DialogTitle";
 import TextField from "@mui/material/TextField";
+import HistoryIcon from "@mui/icons-material/History";
 import "./poker.css";
 
 let id = 1;
@@ -22,14 +23,25 @@ interface memberInfo {
   id: number;
 }
 
+interface historyType {
+  from: memberInfo;
+  to: memberInfo;
+  actionType: number;
+  money: number;
+}
+
 const Poker = ({ members }) => {
   const [memberList, setMemberList] = useState<memberInfo[]>([]);
   const [openDialogMemberList, setOpenDialogMemberList] = useState(false);
   const [openDialogInputMoney, setOpenDialogInputMoney] = useState(false);
+  const [openDialogHistory, setOpenDialogHistory] = useState(false);
   const [fromMember, setFromMember] = useState<memberInfo>();
   const [toMember, setToMember] = useState<memberInfo>();
   const [actionType, setActionType] = useState<number>();
   const [actionMoney, setActionMoney] = useState<number>();
+  const [history, setHistory] = useState<historyType[]>([]);
+  const [coin, setCoin] = useState(0);
+
   useEffect(() => {
     buildMemberList();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -49,6 +61,14 @@ const Poker = ({ members }) => {
 
   const handleCloseDialogInputMoney = () => {
     setOpenDialogInputMoney(false);
+  };
+
+  const handleOpenDialogHistory = () => {
+    setOpenDialogHistory(true);
+  };
+
+  const handleCloseDialogHistory = () => {
+    setOpenDialogHistory(false);
   };
 
   const handleAction = (actionType, from) => {
@@ -74,16 +94,26 @@ const Poker = ({ members }) => {
       // tra tien
       fromMemberTemp.money += actionMoney;
       if (!isToBank) toMemberTemp.money -= actionMoney;
+      else setCoin(coin - actionMoney);
     } else if (actionType === 2) {
       // muon tien
       fromMemberTemp.money -= actionMoney;
       if (!isToBank) toMemberTemp.money += actionMoney;
+      else setCoin(coin + actionMoney);
     }
     memberList.forEach((m) => {
       if (m.id === fromMember.id) result.push(fromMemberTemp);
       else if (m.id === toMember.id && !isToBank) result.push(toMemberTemp);
       else result.push(m);
     });
+    const historyTemp = Array.from(history);
+    historyTemp.unshift({
+      from: fromMember,
+      to: toMember,
+      actionType: actionType,
+      money: actionMoney,
+    });
+    setHistory(historyTemp);
     setActionMoney(NaN);
     setMemberList(result);
   };
@@ -111,8 +141,20 @@ const Poker = ({ members }) => {
     handleOpenDialogInputMoney();
   };
 
+  const checkCoin = () => {
+    let result = 0;
+    memberList.forEach((m) => {
+      result += m.money;
+    });
+
+    return result;
+  };
+
   return (
     <div className="root">
+      <Button onClick={handleOpenDialogHistory}>
+        <HistoryIcon />
+      </Button>
       {memberList.length > 0 &&
         memberList.map((m) => (
           <Card variant="outlined" key={m.id} sx={{ marginTop: "10px" }}>
@@ -151,6 +193,9 @@ const Poker = ({ members }) => {
             </CardContent>
           </Card>
         ))}
+
+      <p>Tổng số xèng đang ở trên bàn: {coin}</p>
+      <p>Đang lệch: {coin + checkCoin()}</p>
       <Dialog
         open={openDialogMemberList && fromMember && !openDialogInputMoney}
         onClose={handleCloseDialogMemberList}
@@ -170,21 +215,21 @@ const Poker = ({ members }) => {
             {memberList.map((m) => {
               if (m.id !== fromMember?.id)
                 return (
-                  <>
+                  <div key={m.id}>
                     <ListItem disablePadding>
                       <ListItemButton onClick={() => handleToMember(m.id)}>
                         <ListItemText primary={m.name} />
                       </ListItemButton>
                     </ListItem>
                     <Divider />
-                  </>
+                  </div>
                 );
               else return null;
             })}
           </List>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDialogMemberList}>Huy</Button>
+          <Button onClick={handleCloseDialogMemberList}>Huỷ</Button>
         </DialogActions>
       </Dialog>
 
@@ -218,6 +263,39 @@ const Poker = ({ members }) => {
           >
             Xong
           </Button>
+        </DialogActions>
+      </Dialog>
+      {/* history */}
+
+      <Dialog
+        open={openDialogHistory}
+        onClose={handleCloseDialogHistory}
+        fullWidth
+      >
+        <DialogTitle>Lịch sử</DialogTitle>
+        <DialogContent>
+          <List>
+            {history?.map((h) => (
+              <>
+                <ListItem>
+                  <ListItemText
+                    primary={
+                      <React.Fragment>
+                        <p>
+                          {h.from.name} {actionType === 1 ? "trả" : "mượn"}{" "}
+                          {h.to.id === 0 ? "ngân hàng" : h.to.name}: {h.money}
+                        </p>
+                      </React.Fragment>
+                    }
+                  />
+                </ListItem>
+                <Divider />
+              </>
+            ))}
+          </List>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDialogHistory}>OK</Button>
         </DialogActions>
       </Dialog>
     </div>
