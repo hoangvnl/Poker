@@ -32,6 +32,7 @@ const Poker = ({ members }) => {
   const [actionMoney, setActionMoney] = useState<number>();
   useEffect(() => {
     buildMemberList();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleOpenDialogMemberList = () => {
@@ -85,10 +86,6 @@ const Poker = ({ members }) => {
     });
     setActionMoney(NaN);
     setMemberList(result);
-  };
-
-  const handleAddUser = () => {
-    const memberListTemp = Array.from(memberList);
   };
 
   const findMember = (id2Find) =>
